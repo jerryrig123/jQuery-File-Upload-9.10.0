@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 #
-# jQuery File Upload Plugin GAE Python Example
+# jQuery File Upload Plugin GAE Python Example 3.0.0
 # https://github.com/blueimp/jQuery-File-Upload
 #
 # Copyright 2011, Sebastian Tschan
 # https://blueimp.net
 #
 # Licensed under the MIT license:
-# https://opensource.org/licenses/MIT
+# http://www.opensource.org/licenses/MIT
 #
 
 from google.appengine.api import memcache, images
@@ -28,9 +28,6 @@ THUMB_MAX_WIDTH = 80
 THUMB_MAX_HEIGHT = 80
 THUMB_SUFFIX = '.'+str(THUMB_MAX_WIDTH)+'x'+str(THUMB_MAX_HEIGHT)+'.png'
 EXPIRATION_TIME = 300  # seconds
-# If set to None, only allow redirects to the referer protocol+host.
-# Set to a regexp for custom pattern matching against the redirect value:
-REDIRECT_ALLOW_TARGET = None
 
 class CORSHandler(webapp2.RequestHandler):
     def cors(self):
@@ -61,20 +58,6 @@ class UploadHandler(CORSHandler):
             file['error'] = 'Filetype not allowed'
         else:
             return True
-        return False
-
-    def validate_redirect(self, redirect):
-        if redirect:
-            if REDIRECT_ALLOW_TARGET:
-                return REDIRECT_ALLOW_TARGET.match(redirect)
-            referer = self.request.headers['referer']
-            if referer:
-                from urlparse import urlparse
-                parts = urlparse(referer)
-                redirect_allow_target = '^' + re.escape(
-                    parts.scheme + '://' + parts.netloc + '/'
-                )
-            return re.match(redirect_allow_target, redirect)
         return False
 
     def get_file_size(self, file):
@@ -148,7 +131,7 @@ class UploadHandler(CORSHandler):
         result = {'files': self.handle_upload()}
         s = self.json_stringify(result)
         redirect = self.request.get('redirect')
-        if self.validate_redirect(redirect):
+        if redirect:
             return self.redirect(str(
                 redirect.replace('%s', urllib.quote(s, ''), 1)
             ))
